@@ -3,6 +3,7 @@ BUILD_DIR := build
 BUILD_TARGET := $(BUILD_DIR)/pdf.js
 DEFAULT_BROWSERS := resources/browser_manifests/browser_manifest.json
 DEFAULT_TESTS := test_manifest.json
+DEFAULT_PYTHON := python2.7
 
 EXTENSION_SRC := ./extensions/
 EXTENSION_BASE_VERSION := 4bb289ec499013de66eb421737a4dbb4a9273eda
@@ -36,6 +37,7 @@ PDF_JS_FILES = \
   stream.js \
   worker.js \
   ../external/jpgjs/jpg.js \
+  jpx.js \
 	$(NULL)
 
 # make server
@@ -43,7 +45,7 @@ PDF_JS_FILES = \
 # This target starts a local web server at localhost:8888. This can be
 # used for testing all browsers.
 server:
-	@cd test; python test.py --port=8888;
+	@cd test; $(DEFAULT_PYTHON) test.py --port=8888;
 
 # make test
 #
@@ -71,7 +73,7 @@ bundle: | $(BUILD_DIR)
 	cat $(PDF_JS_FILES) > all_files.tmp; \
 	sed '/PDFJSSCRIPT_INCLUDE_ALL/ r all_files.tmp' pdf.js > ../$(BUILD_TARGET); \
 	sed -i.bak "s/PDFJSSCRIPT_BUNDLE_VER/`git log --format="%h" -n 1`/" ../$(BUILD_TARGET); \
-	rm -f ../$(BUILD_TARGET).bak
+	rm -f ../$(BUILD_TARGET).bak; \
 	rm -f *.tmp; \
 	cd ..
 
@@ -106,7 +108,7 @@ browser-test:
 	fi;
 
 	cd test; \
-	python test.py --reftest \
+	$(DEFAULT_PYTHON) test.py --reftest \
 	--browserManifestFile=$(PDF_BROWSERS) \
 	--manifestFile=$(PDF_TESTS)
 
